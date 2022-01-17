@@ -88,7 +88,7 @@
             this.Controls.Add(this.calcBtn);
             this.Controls.Add(this.opComboBox);
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "Calculator";
             this.ResumeLayout(false);
             this.PerformLayout();
 
