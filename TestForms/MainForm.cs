@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace TestForms
@@ -16,20 +17,16 @@ namespace TestForms
         private void InitOperationsCombobox()
         {
             opComboBox.Items.Clear();
-
-            foreach (OperationId op in Enum.GetValues(typeof(OperationId)))
-            {
-                opComboBox.Items.Add(op.ToLocalizedText());
-            }
+            opComboBox.Items.AddRange(calculator.GetOperationsSigns().ToArray());
         }
 
         private void OnCalculateBtnClick(object sender, EventArgs e)
         {
-            var operation = OperationId.Sum;
+            var operationId = opComboBox.SelectedIndex;
             var op1 = 0;
             var op2 = 0;
 
-            if (!TryParseOperationCombobox(ref operation))
+            if (!calculator.ValidateOperationId(operationId))
             {
                 resultLabel.Text = "Выберите операцию!";
                 return;
@@ -47,19 +44,8 @@ namespace TestForms
                 return;
             }
 
-            var result = calculator.Calculate(op1, op2, operation);
-            resultLabel.Text = $"{op1}{operation.ToLocalizedText()}{op2}={result}";
-        }
-
-        private bool TryParseOperationCombobox(ref OperationId operationId)
-        {
-            if (Enum.IsDefined(typeof(OperationId), opComboBox.SelectedIndex))
-            {
-                operationId = (OperationId)opComboBox.SelectedIndex;
-                return true;
-            }
-
-            return false;
+            var result = calculator.Calculate(op1, op2, operationId);
+            resultLabel.Text = $"{op1}{calculator.GetOperationSign(operationId)}{op2}={result}";
         }
     }
 }

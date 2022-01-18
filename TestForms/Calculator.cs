@@ -5,39 +5,74 @@ namespace TestForms
 {
     public class Calculator
     {
-        private readonly IReadOnlyDictionary<OperationId, Func<int, int, int>> _operations =
-            new Dictionary<OperationId, Func<int, int, int>>
-            {
-                [OperationId.Sum] = (a, b) => a + b,
-                [OperationId.Subtract] = (a, b) => a - b,
-                [OperationId.Divide] = (a, b) => a / b,
-                [OperationId.Multiply] = (a, b) => a * b,
-            };
+        private readonly IReadOnlyList<Operation> _operations = new List<Operation>() {
+            new Operation(
+              sign: "+",
+              operation: (a, b) => a + b
+            ),
+
+            new Operation(
+              sign: "-",
+              operation: (a, b) => a - b
+            ),
+
+           new Operation(
+              sign: "/",
+              operation: (a, b) => a / b
+            ),
+        };
 
         public Calculator()
         {
             ValidateOperations();
         }
 
-        public int Calculate(int op1, int op2, OperationId operationId)
+        public int Calculate(int op1, int op2, int operationIdx)
         {
-            var operation = _operations[operationId];
-            return operation(op1, op2);
+
+            if (!ValidateOperationId(operationIdx))
+            {
+                throw new ArgumentException($"{operationIdx} operation id is invalid!");
+            }
+
+            return _operations[operationIdx].operation(op1, op2);
         }
+
+        public IEnumerable<string> GetOperationsSigns()
+        {
+            foreach (Operation operation in _operations)
+            {
+                yield return operation.sign;
+            }
+        }
+
+        public string GetOperationSign(int id)
+        {
+            if (!ValidateOperationId(id))
+            {
+                throw new ArgumentException($"{id} operation id is invalid!");
+            }
+
+            return _operations[id].sign;
+        }
+
+        public bool ValidateOperationId(int id) =>
+            id >= 0 && id < _operations.Count;
 
         private void ValidateOperations()
         {
-            foreach (OperationId operationId in Enum.GetValues(typeof(OperationId)))
+            for (int i = 0; i < _operations.Count; i++)
             {
+                Operation operation = _operations[i];
 
-                if (!_operations.ContainsKey(operationId))
+                if (operation == null)
                 {
-                    throw new Exception($"Operation with id {operationId} not added to operetions dictionary!");
+                    throw new Exception($"Operation with idx={i} is null!");
                 }
 
-                if (_operations[operationId] == null)
+                if (operation.operation == null)
                 {
-                    throw new Exception($"Operation with id {operationId} is null!");
+                    throw new Exception($"Operation logic of \"{operation.sign}\" operation is null!");
                 }
             }
         }
