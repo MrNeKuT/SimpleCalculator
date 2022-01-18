@@ -5,27 +5,7 @@ namespace TestForms
 {
     public class Calculator
     {
-        private readonly IReadOnlyList<Operation> _operations = new List<Operation>() {
-            new Operation(
-              sign: "+",
-              operation: (a, b) => a + b
-            ),
-
-            new Operation(
-              sign: "-",
-              operation: (a, b) => a - b
-            ),
-
-           new Operation(
-              sign: "/",
-              operation: (a, b) => a / b
-            ),
-        };
-
-        public Calculator()
-        {
-            ValidateOperations();
-        }
+        private List<IOperation> _operations = new List<IOperation>();
 
         public int Calculate(int op1, int op2, int operationIdx)
         {
@@ -35,14 +15,25 @@ namespace TestForms
                 throw new ArgumentException($"{operationIdx} operation id is invalid!");
             }
 
-            return _operations[operationIdx].operation(op1, op2);
+            return _operations[operationIdx].Calculate(op1, op2);
+        }
+
+        public Calculator AddOperation(IOperation operation)
+        {
+            if(operation == null)
+            {
+               throw new ArgumentNullException("Operation you trying to add is null!");
+            }
+
+            _operations.Add(operation);
+            return this;
         }
 
         public IEnumerable<string> GetOperationsSigns()
         {
-            foreach (Operation operation in _operations)
+            foreach (IOperation operation in _operations)
             {
-                yield return operation.sign;
+                yield return operation.Sign;
             }
         }
 
@@ -53,28 +44,10 @@ namespace TestForms
                 throw new ArgumentException($"{id} operation id is invalid!");
             }
 
-            return _operations[id].sign;
+            return _operations[id].Sign;
         }
 
         public bool ValidateOperationId(int id) =>
             id >= 0 && id < _operations.Count;
-
-        private void ValidateOperations()
-        {
-            for (int i = 0; i < _operations.Count; i++)
-            {
-                Operation operation = _operations[i];
-
-                if (operation == null)
-                {
-                    throw new Exception($"Operation with idx={i} is null!");
-                }
-
-                if (operation.operation == null)
-                {
-                    throw new Exception($"Operation logic of \"{operation.sign}\" operation is null!");
-                }
-            }
-        }
     }
 }

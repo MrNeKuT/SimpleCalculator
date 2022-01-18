@@ -6,18 +6,26 @@ namespace TestForms
 {
     public partial class MainForm : Form
     {
-        private readonly Calculator calculator = new Calculator();
+        private Calculator _calculator;
 
         public MainForm()
         {
             InitializeComponent();
+            InitCalculator();
             InitOperationsCombobox();
+        }
+
+        private void InitCalculator()
+        {
+            _calculator = new Calculator()
+                .AddOperation(new SumOperation())
+                .AddOperation(new SubtractOperation());
         }
 
         private void InitOperationsCombobox()
         {
             opComboBox.Items.Clear();
-            opComboBox.Items.AddRange(calculator.GetOperationsSigns().ToArray());
+            opComboBox.Items.AddRange(_calculator.GetOperationsSigns().ToArray());
         }
 
         private void OnCalculateBtnClick(object sender, EventArgs e)
@@ -26,7 +34,7 @@ namespace TestForms
             var op1 = 0;
             var op2 = 0;
 
-            if (!calculator.ValidateOperationId(operationId))
+            if (!_calculator.ValidateOperationId(operationId))
             {
                 resultLabel.Text = "Выберите операцию!";
                 return;
@@ -44,8 +52,8 @@ namespace TestForms
                 return;
             }
 
-            var result = calculator.Calculate(op1, op2, operationId);
-            resultLabel.Text = $"{op1}{calculator.GetOperationSign(operationId)}{op2}={result}";
+            var result = _calculator.Calculate(op1, op2, operationId);
+            resultLabel.Text = $"{op1}{_calculator.GetOperationSign(operationId)}{op2}={result}";
         }
     }
 }
